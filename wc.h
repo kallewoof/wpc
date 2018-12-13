@@ -269,8 +269,8 @@ struct wc: public we::configurator {
     wc(FILE* fp) {
         configurations = new std::vector<configuration*>();
         load(fp);
-        size_t idx = configurations->size();
-        for (auto& c : *configurations) { idx--; c->old_idx = idx; }
+        // size_t idx = configurations->size();
+        // for (auto& c : *configurations) { idx--; c->old_idx = idx; }
         // for (auto& c : *configurations) { printf("- %s\n", c->to_string().c_str()); }
     }
 
@@ -278,8 +278,8 @@ struct wc: public we::configurator {
         serialize(fp, emits);
         vpser(fp, options);
         vpser(fp, *configurations);
-        size_t idx = configurations->size();
-        for (auto& c : *configurations) { idx--; printf("- %zu->%zu %s\n", c->old_idx, idx, c->to_string().c_str()); }
+        // size_t idx = configurations->size();
+        // for (auto& c : *configurations) { idx--; printf("- %zu->%zu %s\n", c->old_idx, idx, c->to_string().c_str()); }
     }
 
     void load(FILE* fp) {
