@@ -1,0 +1,7 @@
+wpx
+wpc
+*.o
+*.a
+*.dSYM
+*.wpc
+*.scd
