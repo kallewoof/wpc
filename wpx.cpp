@@ -13,7 +13,8 @@ int main(int argc, const char* argv[])
     }
     wc::wc wc(fp);
     fclose(fp);
-    fp = fopen(".wpx.backup", "wb");
+    wc.emit_and_penalize(stdout);
+    fp = fopen(argv[1], "wb");
     wc.save(fp);
     fclose(fp);
 }

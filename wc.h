@@ -22,8 +22,8 @@ inline float frand() {
 namespace wc {
 
 #define D(T) \
-    void serialize(FILE* fp, const T& t) { fwrite(&t, sizeof(t), 1, fp); printf("[ser %06ld] %d\n", ftell(fp), t); } \
-    void deserialize(FILE* fp, T& t) { fread(&t, sizeof(t), 1, fp); printf("[des %06ld] %d\n", ftell(fp), t); }
+    void serialize(FILE* fp, const T& t) { fwrite(&t, sizeof(t), 1, fp); /*printf("[ser %06ld] %d\n", ftell(fp), t);*/ } \
+    void deserialize(FILE* fp, T& t) { fread(&t, sizeof(t), 1, fp); /*printf("[des %06ld] %d\n", ftell(fp), t);*/ }
 D(size_t)
 D(float)
 D(tiny::token_type)
@@ -43,8 +43,8 @@ void deserialize(FILE* fp, option& o);
 void serialize(FILE* fp, const configuration& c);
 void deserialize(FILE* fp, configuration& c);
 
-inline void serialize(FILE* fp, const std::string& s) { serialize(fp, s.size()); fwrite(s.c_str(), s.size(), 1, fp); printf("[ser %06ld] (string) %s\n", ftell(fp), s.c_str()); }
-inline std::string deserialize_string(FILE* fp) { size_t sz; deserialize(fp, sz); char buf[sz + 1]; buf[sz] = 0; fread(buf, sz, 1, fp); printf("[des %06ld] (string) %s\n", ftell(fp), buf); return buf; }
+inline void serialize(FILE* fp, const std::string& s) { serialize(fp, s.size()); fwrite(s.c_str(), s.size(), 1, fp); /*printf("[ser %06ld] (string) %s\n", ftell(fp), s.c_str());*/ }
+inline std::string deserialize_string(FILE* fp) { size_t sz; deserialize(fp, sz); char buf[sz + 1]; buf[sz] = 0; fread(buf, sz, 1, fp); /*printf("[des %06ld] (string) %s\n", ftell(fp), buf);*/ return buf; }
 
 inline void deserialize(FILE* fp, std::string& s) { s = deserialize_string(fp); }
 
@@ -130,7 +130,7 @@ struct option {
     , emits(emits_in)
     , settings(settings_in) {}
     void emit(size_t sidx, FILE* fp) const {
-        fprintf(fp, "%s%s=%s%s", emits.c_str(), name.c_str(), settings.at(sidx)->value.c_str(), settings.at(sidx)->emits.c_str());
+        fprintf(fp, "%s%s=%s%s\n", emits.c_str(), name.c_str(), settings.at(sidx)->value.c_str(), settings.at(sidx)->emits.c_str());
     }
 };
 
@@ -294,6 +294,7 @@ struct wc: public we::configurator {
         for (auto& c : *configurations) c->penalize(*cfg);
         fprintf(stream, "%s", emits.c_str());
         cfg->emit(stream);
+        sort();
     }
 
     void sort() {
