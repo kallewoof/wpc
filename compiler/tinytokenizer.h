@@ -8,6 +8,7 @@
 #include <tinyformat.h>
 #include <string>
 #include <vector>
+#include <cstring>
 
 namespace tiny {
 
