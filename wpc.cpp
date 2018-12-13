@@ -45,4 +45,5 @@ int main(int argc, const char* argv[])
     }
     wc.save(fres);
     fclose(fres);
+    printf("%zu\n", wc.configurations->size());
 }
