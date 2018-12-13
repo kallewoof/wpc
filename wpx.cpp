@@ -13,8 +13,11 @@ int main(int argc, const char* argv[])
     }
     wc::wc wc(fp);
     fclose(fp);
-    wc.emit_and_penalize(stdout);
+    if (!wc.emit_and_penalize(stdout)) {
+        exit(1);
+    }
     fp = fopen(argv[1], "wb");
     wc.save(fp);
     fclose(fp);
+    exit(0);
 }

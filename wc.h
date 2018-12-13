@@ -150,6 +150,7 @@ struct configuration {
     std::vector<option*> options;
     std::map<std::string,std::string> state;
     std::vector<size_t> setting_index;
+    size_t old_idx;
     float pri = 0;
     configuration() {}
     configuration(const std::vector<option*>& options_in, const std::map<std::string,std::string>& state_in, const std::vector<size_t>& setting_index_in, option* opt, size_t sidx)
@@ -194,7 +195,7 @@ struct configuration {
         // for any matching setting indices, we penalize ourselves
         for (size_t i = 0; i < options.size(); ++i) {
             if (setting_index[i] == basis.setting_index[i]) {
-                pri -= 0.10; // TODO: alter based on settings priority
+                pri -= 0.01; // TODO: alter based on settings priority
             }
         }
     }
@@ -246,7 +247,7 @@ struct wc: public we::configurator {
         for (we::node* n : env.nodes) {
             n->configure(this);
         }
-        printf("generated %zu options with %zu settings\n", options.size(), settings.size());
+        // printf("generated %zu options with %zu settings\n", options.size(), settings.size());
         for (option* opt : options) {
             std::vector<configuration*>* new_config = new std::vector<configuration*>();
             if (configurations == nullptr) {
@@ -259,23 +260,26 @@ struct wc: public we::configurator {
                 replace_config(new_config);
             }
         }
-        printf("generated %zu configurations\n", configurations->size());
+        // printf("generated %zu configurations\n", configurations->size());
         normalize();
         blur();
         sort();
-        for (auto& c : *configurations) { printf("- %s\n", c->to_string().c_str()); }
     }
 
     wc(FILE* fp) {
         configurations = new std::vector<configuration*>();
         load(fp);
-        for (auto& c : *configurations) { printf("- %s\n", c->to_string().c_str()); }
+        size_t idx = configurations->size();
+        for (auto& c : *configurations) { idx--; c->old_idx = idx; }
+        // for (auto& c : *configurations) { printf("- %s\n", c->to_string().c_str()); }
     }
 
     void save(FILE* fp) const {
         serialize(fp, emits);
         vpser(fp, options);
         vpser(fp, *configurations);
+        size_t idx = configurations->size();
+        for (auto& c : *configurations) { idx--; printf("- %zu->%zu %s\n", c->old_idx, idx, c->to_string().c_str()); }
     }
 
     void load(FILE* fp) {
@@ -288,13 +292,15 @@ struct wc: public we::configurator {
         vpdes(fp, *configurations, configuration);
     }
 
-    void emit_and_penalize(FILE* stream) {
+    bool emit_and_penalize(FILE* stream) {
+        if (!configurations || configurations->size() == 0) return false;
         auto cfg = configurations->back();
         configurations->pop_back();
         for (auto& c : *configurations) c->penalize(*cfg);
         fprintf(stream, "%s", emits.c_str());
         cfg->emit(stream);
         sort();
+        return true;
     }
 
     void sort() {
@@ -323,7 +329,6 @@ struct wc: public we::configurator {
     }
 
     virtual void emit(const std::string& output) override {
-        printf("* emit %s\n", output.c_str());
         emits += output;
     }
 

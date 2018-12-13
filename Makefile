@@ -13,3 +13,5 @@ wpc: wpc.cpp we.h wc.h tinyformat.h libcompiler.a
 wpx: wpx.cpp wc.h tinyformat.h libcompiler.a
 	$(CPP) $(CPPFLAGS) wpx.cpp -o wpx libcompiler.a
 
+install: wpc wpx
+	cp wpc wpx /usr/local/bin

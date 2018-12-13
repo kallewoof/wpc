@@ -6,7 +6,7 @@
 int main(int argc, const char* argv[])
 {
     if (argc != 3) {
-        fprintf(stderr, "Syntax: %s <configuration> <output>\n", argv[0]);
+        fprintf(stderr, "Syntax: %s <specification> <output>\n", argv[0]);
         exit(1);
     }
     FILE* fp = fopen(argv[1], "r");
@@ -28,12 +28,12 @@ int main(int argc, const char* argv[])
             fprintf(stderr, "parse failed\n");
             break;
         }
-        printf("We got sumfin:\n");
-        p->print();
-        printf("\n");
+        // printf("We got sumfin:\n");
+        // p->print();
+        // printf("\n");
         p->exec(&we);
-        printf("Result:\n");
-        we.print();
+        // printf("Result:\n");
+        // we.print();
     }
 
     wc::wc wc(we);
