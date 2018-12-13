@@ -8,8 +8,8 @@ libcompiler.a: compiler/tinyast.h compiler/tinyparser.cpp compiler/tinyparser.h 
 	ar -rv libcompiler.a tinyparser.o tinytokenizer.o
 
 wpc: wpc.cpp we.h wc.h tinyformat.h libcompiler.a
-	$(CPP) $(CPPFLAGS) libcompiler.a wpc.cpp -o wpc
+	$(CPP) $(CPPFLAGS) wpc.cpp -o wpc libcompiler.a
 
 wpx: wpx.cpp wc.h tinyformat.h libcompiler.a
-	$(CPP) $(CPPFLAGS) libcompiler.a wpx.cpp -o wpx
+	$(CPP) $(CPPFLAGS) wpx.cpp -o wpx libcompiler.a
 
