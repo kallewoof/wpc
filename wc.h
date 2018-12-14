@@ -185,7 +185,7 @@ struct configuration {
         }
     }
     std::string to_string() const {
-        std::string r = "pri=" + std::to_string(pri);
+        std::string r = "";//"pri=" + std::to_string(pri);
         for (size_t i = 0; i < options.size(); ++i) {
             r += (r == "" ? "" : ", ") + options[i]->name + "=" + options[i]->settings[setting_index[i]]->value;
         }
