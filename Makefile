@@ -1,5 +1,5 @@
 CPP=g++
-CPPFLAGS=-std=c++11 -I.
+CPPFLAGS=-g -std=c++11 -I.
 
 all: wpc wpx
 

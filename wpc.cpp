@@ -39,7 +39,7 @@ int main(int argc, const char* argv[])
         auto p = tiny::treeify(&t, true);
         if (!p) {
             fprintf(stderr, "parse failed\n");
-            break;
+            exit(1);
         }
         // printf("We got sumfin:\n");
         // p->print();
