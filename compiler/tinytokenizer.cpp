@@ -19,7 +19,14 @@ token_t* tokenize(const char* s) {
     size_t token_start = 0;
     size_t i;
     int consumes;
+    size_t line = 0, col = 0;
     for (i = 0; s[i]; ++i) {
+        if (s[i] == '\n') {
+            line++;
+            col = 0;
+        } else {
+            col++;
+        }
         // if we are finding a character, keep reading until we find it
         if (finding) {
             if (finding2 && (!s[i+1] || s[i+1] != finding2)) continue;
@@ -28,7 +35,7 @@ token_t* tokenize(const char* s) {
             open = false;
             if (s[i] == '\n') {
                 // we actually want to parse this separately so we rewind i
-                i--;
+                i--; col--;
             }
             continue; // we move one extra step, or "foo" will be read in as "foo
         }
@@ -91,6 +98,8 @@ token_t* tokenize(const char* s) {
                 finalized = false;
                 token_start = i;
                 tail = new token_t(token, tail);
+                tail->line = line;
+                tail->col = col;
                 if (!head) head = tail;
                 open = true;
                 break;
@@ -130,6 +139,8 @@ token_t* tokenize(const char* s) {
                 }
                 prev = tail;
                 tail = new token_t(token, tail);
+                tail->line = line;
+                tail->col = col;
                 tail->value = strndup(&s[i], 1 /* misses 1 char for concat/hex/bin, but irrelevant */);
                 if (!head) head = tail;
                 break;

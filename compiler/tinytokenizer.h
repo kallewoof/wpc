@@ -93,6 +93,7 @@ static const char* token_type_str[] = {
 };
 
 struct token_t {
+    size_t line, col;
     token_type token = tok_undef;
     char* value = nullptr;
     token_t* next = nullptr;

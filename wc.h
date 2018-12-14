@@ -66,14 +66,18 @@ struct req {
     : var(var_in)
     , val(val_in)
     , cond(cond_in) {}
-    bool met(const std::map<std::string,std::string>& state) const {
-        bool equals = state.count(var) && state.at(var) == val;
+    bool met(const std::map<std::string,std::string>& state, const std::string& x_var = "", const std::string& x_val = "") const {
+        bool equals = (state.count(var) && x_var != var && state.at(var) == val) || (x_var == var && x_val == val);
         return cond == tiny::tok_eq ? equals : !equals;
     }
     static void convert_we(std::vector<req*>& v, const std::vector<we::restricter*>& rest) {
         for (const auto& r : rest) {
             v.push_back(new req(r->var, r->val, r->condition));
         }
+    }
+    static bool met(const std::map<std::string,std::string>& state, const std::vector<req*>& requirements, const std::string& x_var = "", const std::string& x_val = "") {
+        for (const auto& r : requirements) if (!r->met(state, x_var, x_val)) return false;
+        return true;
     }
 };
 
@@ -100,10 +104,6 @@ struct setting {
     , emits(emits_in)
     , requirements(requirements_in)
     , priority(priority_in) {}
-    bool met(const std::map<std::string,std::string>& state) {
-        for (const auto& r : requirements) if (!r->met(state)) return false;
-        return true;
-    }
 };
 
 void serialize(FILE* fp, const setting& s) {
@@ -150,17 +150,20 @@ struct configuration {
     std::vector<option*> options;
     std::map<std::string,std::string> state;
     std::vector<size_t> setting_index;
+    std::vector<req*> requirements;
     size_t old_idx;
     float pri = 0;
     configuration() {}
-    configuration(const std::vector<option*>& options_in, const std::map<std::string,std::string>& state_in, const std::vector<size_t>& setting_index_in, option* opt, size_t sidx)
+    configuration(const std::vector<option*>& options_in, const std::map<std::string,std::string>& state_in, const std::vector<size_t>& setting_index_in, const std::vector<req*> requirements_in, option* opt, size_t sidx, std::vector<req*> reqs)
     : options(options_in)
     , state(state_in)
-    , setting_index(setting_index_in) {
+    , setting_index(setting_index_in)
+    , requirements(requirements_in) {
         options.push_back(opt);
         setting_index.push_back(sidx);
         state[opt->name] = opt->settings[sidx]->value;
         assert(options.size() == setting_index.size());
+        for (req* r : reqs) requirements.push_back(r);
     }
     void calc_pri() {
         pri = 0;
@@ -171,8 +174,8 @@ struct configuration {
     void branch(std::vector<configuration*>* config_pool, option* opt) {
         for (size_t i = 0; i < opt->settings.size(); ++i) {
             setting* s = opt->settings[i];
-            if (s->met(state)) {
-                config_pool->push_back(new configuration(options, state, setting_index, opt, i));
+            if (req::met(state, s->requirements) && req::met(state, requirements, opt->name, s->value)) {
+                config_pool->push_back(new configuration(options, state, setting_index, requirements, opt, i, s->requirements));
             }
         }
     }
@@ -180,8 +183,9 @@ struct configuration {
         std::vector<option*> options;
         std::map<std::string,std::string> state;
         std::vector<size_t> setting_index;
+        std::vector<req*> requirements;
         for (size_t i = 0; i < opt->settings.size(); ++i) {
-            config_pool->push_back(new configuration(options, state, setting_index, opt, i));
+            config_pool->push_back(new configuration(options, state, setting_index, requirements, opt, i, opt->settings[i]->requirements));
         }
     }
     std::string to_string() const {
@@ -352,67 +356,3 @@ struct wc: public we::configurator {
 } // namespace wc
 
 #endif // included_wc_h
-
-
-    /*
-    a(i,ii,iii)     b(iv,v)
-    
-    ai      aii     aiii    biv     bv
-    UI      N       UI      UI      HUI
-    pri=0   pri=1   pri=0   pri=0   pri=-1
-
-    aii-biv     1
-    ai-biv      0
-    aii-bv      0
-    aiii-biv    0
-    ai-bv       -1
-    aiii-bv     -1
-
-    modify randomly (-25%..+25%): (2*-0.25..+0.25)
-
-    aii-biv     0.54166448
-    aii-bv      0.30728053
-    aiii-biv    0.06808789
-    ai-biv      -0.38307254
-    ai-bv       -1.25632933
-    aiii-bv     -1.28763431
-
-    pick top item and penalize selections (-0.10 for normal, -0.15 for uninteresting, -0.20 for heavy uninteresting)
-    EXEC    aii-biv
-
-    aii-bv      0.20728053
-    aiii-biv    -0.08191211
-    ai-biv      -0.5330725
-    ai-bv       -1.25632933
-    aiii-bv     -1.28763431
-
-    pick top item and penalize selections
-    EXEC    aii-bv
-
-    aiii-biv    -0.08191211
-    ai-biv      -0.5330725
-    ai-bv       -1.45632933
-    aiii-bv     -1.48763431
-
-    pick top item and penalize selections
-    EXEC aiii-biv
-
-    ai-biv      -0.6830725
-    ai-bv       -1.45632933
-    aiii-bv     -1.63763431
-    
-    pick top item and penalize selections
-    EXEC ai-biv
-
-    ai-bv       -1.45632933
-    aiii-bv     -1.63763431
-
-    Actions:
-    COMBINE     Turn options a, b with selections a(i=0, ii=1, iii=0), b(iv=0, v=-1) into all possible acceptable combinations,
-                where a combination may be rejected if given conditionals are not satisfied; call this the set of configurations
-                and assign each configuration a priority score equal to the sum of all priority scores of the selections
-    BLUR        Adjust each configuration's priority score by a small random amount (here it is based on the total absolute range
-                of the options; this is probably a bad idea, and a fixed length (e.g. 1 or 2) should probably be used)
-    EXEC        Emit the top priority configuration, penalize all other configurations accordingly (for every selection that was used)
-                and terminate, storing state for the next call
-    */

@@ -33,12 +33,13 @@ int main(int argc, const char* argv[])
     fseek(fp, 0, SEEK_SET);
     fread(buf, 1, sz, fp);
     fclose(fp);
+    buf[sz] = 0;
     auto t = tiny::tokenize(buf);
     we::we we;
     while (t) {
         auto p = tiny::treeify(&t, true);
         if (!p) {
-            fprintf(stderr, "parse failed\n");
+            fprintf(stderr, "parse failed around line %zu, col %zu\n", t->line, t->col);
             exit(1);
         }
         // printf("We got sumfin:\n");
