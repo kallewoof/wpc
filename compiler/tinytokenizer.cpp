@@ -147,8 +147,14 @@ token_t* tokenize(const char* s) {
         tail->value = strndup(&s[token_start], i-token_start);
         finalized = true;
     }
+    while (head && (head->token == tok_consumable || head->token == tok_line_comment)) {
+        token_t* tmp = head;
+        head = head->next;
+        tmp->next = nullptr;
+        delete tmp;
+    }
     for (token_t* t = head; t; t = t->next) {
-        while (t->next && t->next->token == tok_consumable) {
+        while (t->next && (t->next->token == tok_consumable || t->next->token == tok_line_comment)) {
             token_t* tmp = t->next;
             t->next = tmp->next;
             tmp->next = nullptr;

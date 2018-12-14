@@ -48,18 +48,7 @@ st_t* parse_expr(token_t** s) {
     token_t* pcv = *s;
     try(parse_pre);
     try(parse_option);
-    try(parse_ignored);
     return nullptr;
-}
-
-st_t* parse_ignored(token_t** s) {
-    // # <blob> \n | <consumed>
-    token_t* prev = *s;
-    while ((*s)->token == tok_line_comment || (*s)->token == tok_consumable) {
-        *s = (*s)->next;
-    }
-    if (prev == *s) return nullptr;
-    return parse_expr(s);
 }
 
 st_t* parse_pre(token_t** s) {
