@@ -106,7 +106,7 @@ st_t* parse_value(token_t** s) {
     }
     if (!r->next || r->token != tok_symbol || std::string("value") != r->value) return nullptr;
     r = r->next;
-    if (!r->next || r->token != tok_number) return nullptr;
+    if (!r->next || (r->token != tok_number && r->token != tok_symbol)) return nullptr;
     std::string value = r->value;
     std::string desc = "";
     std::string pre = "";
@@ -150,7 +150,7 @@ st_t* parse_condition(token_t** s) {
     }
     token_type comparator = r->token;
     r = r->next;
-    if (r->token != tok_number) return nullptr;
+    if (r->token != tok_number && r->token != tok_symbol) return nullptr;
     std::string val = r->value;
     *s = r->next;
     return new cond_t(var, val, comparator);
