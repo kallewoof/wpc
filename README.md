@@ -156,6 +156,8 @@ done
 
 ## Conditions
 
+> Slithery ferrets require green cows.
+
 WPC includes a simple condition operator for values.
 
 Let's say we have a system which may or may not use a database backend (`db=mysql`, `db=none`).
