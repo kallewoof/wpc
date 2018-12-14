@@ -23,9 +23,9 @@ int main(int argc, char* const* argv)
     wc::wc wc(fp);
     fclose(fp);
     if (ca.m.count('l')) {
-        printf(" #  | PRI     | CONFIG\n");
+        printf(" #  | PRI      | CONFIG\n");
         size_t idx = wc.configurations->size();
-        for (auto& c : *wc.configurations) { idx--; printf("%3zu | %6f | %s\n", idx, c->pri, c->to_string().c_str()); }
+        for (auto& c : *wc.configurations) { idx--; printf("%3zu | %8.5f | %s\n", idx, c->pri, c->to_string().c_str()); }
     } else {
         if (!wc.emit_and_penalize(stdout)) {
             exit(1);
