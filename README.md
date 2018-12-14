@@ -52,7 +52,7 @@ $
 ```
 I.e. the exact same output as above. While there is some randomness (called "blurring" here), parameters are in fact ordered in a fixed manner.
 
-There are currently 4 prioritizers for values: heavy (-1), uninteresting (-1), normal (0), light (+1), interesting (+1), prioritized (+1). These can be combined any number of times, e.g.
+There are currently 6 prioritizers for values: heavy (-1), uninteresting (-1), normal (0), light (+1), interesting (+1), prioritized (+1). These can be combined any number of times, e.g.
 ```
 heavy uninteresting prioritized value x;
 ```
@@ -74,7 +74,7 @@ $ wpx -l cow2.scd
   0 |  1.02610 | cow2=green
 $ 
 ```
-(the outputs differ, not because `cow.wcd` is different from `cow2.wcd`, but the starting priorities are blurred; try compiling and listing multiple times and you'll note that each time is slightly different)
+(the outputs differ, not because `cow.wcd` is different from `cow2.wcd`, but because the starting priorities are blurred; try compiling and listing multiple times and you'll note that each time is slightly different)
 
 ## Configuration priority
 
@@ -121,8 +121,7 @@ $ wpx -l animals.scd
   0 |  0.94447 | cow=green, ferret=slithery
 $
 ```
-In this case, the ordering did not change, but you may note that the priority for `cow=white, ferret=squirrely` has decreased
-from `-0.04137` to `-0.05137`, because of the fact we have already tested `ferret=squirrely` once.
+In this case, the ordering did not change, but you may note that the priority for `cow=white, ferret=squirrely` has decreased from `-0.04137` to `-0.05137`, because of the fact we have already tested `ferret=squirrely` once. The same of course applies to `cow=green, ferret=slithery`, going from `0.95447` to `0.94447`, because we have tested `cow=green` once.
 
 Note: the `wpx` command will return an exit code `0` if a configuration was emitted successfully, and an exit code `1` if there were no configurations left to test.
 
