@@ -246,6 +246,26 @@ $ wpx -l websrv.scd
 $ 
 ```
 
+Note: you may end up with skipped options due to conditions. This:
+```
+# file: animals.wpc
+cow {
+  normal value green;
+  uninteresting value white;
+}
+ferret {
+  normal value squirrely(require cow==green);
+  normal value slithery(require cow==green);
+}
+```
+will result in this:
+```Bash
+ #  | PRI      | CONFIG
+  1 |      nan | cow=green, ferret=squirrely
+  0 |      nan | cow=green, ferret=slithery
+```
+I.e. no white cow tests will ever be scheduled!
+
 ## Extra output
 
 By default, WPC will only output `option=value` for each option. Sometimes you want to include additional output based on selected values, such as database hosts or such:
