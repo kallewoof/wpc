@@ -153,6 +153,39 @@ while true; do
     echo " OK"
 done
 ```
+Run example:
+```Bash
+$ ./simple.sh
+Generating schedule
+4
+ #  | PRI      | CONFIG
+  3 | -0.03884 | cow=white, ferret=slithery
+  2 |  0.02654 | cow=white, ferret=squirrely
+  1 |  1.03248 | cow=green, ferret=squirrely
+  0 |  1.04137 | cow=green, ferret=slithery
+TESTING cow value: green   ferret value: slithery
+. . .  OK
+ #  | PRI      | CONFIG
+  2 | -0.04884 | cow=white, ferret=slithery
+  1 |  0.02654 | cow=white, ferret=squirrely
+  0 |  1.02248 | cow=green, ferret=squirrely
+TESTING cow value: green   ferret value: squirrely
+. ^C
+$ I hit ctrl-c to stop it. I'm now resuming:
+$ ./simple.sh resume
+ #  | PRI      | CONFIG
+  1 | -0.04884 | cow=white, ferret=slithery
+  0 |  0.01654 | cow=white, ferret=squirrely
+TESTING cow value: white   ferret value: squirrely
+. . .  OK
+ #  | PRI      | CONFIG
+  0 | -0.05884 | cow=white, ferret=slithery
+TESTING cow value: white   ferret value: slithery
+. . .  OK
+ #  | PRI      | CONFIG
+Finished all instances
+$ 
+```
 
 ## Conditions
 
