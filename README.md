@@ -212,3 +212,100 @@ $ wpx -l websrv.scd
   0 |  1.00419 | db=mysql, db_location=remote
 $ 
 ```
+
+## Extra output
+
+By default, WPC will only output `option=value` for each option. Sometimes you want to include additional output based on selected values, such as database hosts or such:
+
+```
+# file: websrv.wpc
+db {
+  uninteresting value none;
+  normal value mysql;
+}
+db_location {
+  normal value remote(require db!=none) {{
+    db_host=remote-server.somewhere
+  }}
+  normal value local(require db!=none) {{
+    db_host=localhost
+  }}
+  normal value none(require db==none);
+}
+```
+```Bash
+$ wpc websrv.wpc
+3
+$ wpx websrv.scd
+db=mysql
+db_location=local
+    db_host=localhost
+
+$ wpx websrv.scd
+db=mysql
+db_location=remote
+    db_host=remote-server.somewhere
+
+$ wpx websrv.scd
+db=none
+db_location=none
+$ 
+```
+
+Anything between the double curlies will be emitted as is, and may include code snippets or such (the only restriction is that it must not contain "`}}`", as that will end the sequence):
+
+```
+# file: websrv.wpc
+db {
+  uninteresting value none;
+  normal value mysql;
+  normal value mongodb;
+}
+db_location {
+  normal value remote(require db!=none) {{
+    if [ "$db" = "mongodb" ]; then
+        db_host=remote-mongo-server.somewhere
+    else
+        db_host=remote-server.somewhere
+    fi
+  }}
+  normal value local(require db!=none) {{
+    db_host=localhost
+  }}
+  normal value none(require db==none);
+}
+```
+```Bash
+$ wpx websrv.scd
+db=mongodb
+db_location=local
+    db_host=localhost
+
+$ wpx websrv.scd
+db=mongodb
+db_location=remote
+    if [ "$db" = "mongodb" ]; then
+        db_host=remote-mongo-server.somewhere
+    else
+        db_host=remote-server.somewhere
+    fi
+
+$ wpx websrv.scd
+db=mysql
+db_location=remote
+    if [ "$db" = "mongodb" ]; then
+        db_host=remote-mongo-server.somewhere
+    else
+        db_host=remote-server.somewhere
+    fi
+
+$ wpx websrv.scd
+db=mysql
+db_location=local
+    db_host=localhost
+
+$ wpx websrv.scd
+db=none
+db_location=none
+$ 
+```
