@@ -161,6 +161,8 @@ struct value_t: public st_t {
     static bool prioritize(const std::string& pexpr, int& p) {
         if (pexpr == "heavy") p--;
         else if (pexpr == "uninteresting") p--;
+        else if (pexpr == "light") p++;
+        else if (pexpr == "interesting") p++;
         else if (pexpr == "prioritized") p++;
         else return pexpr == "normal";
         return true;
