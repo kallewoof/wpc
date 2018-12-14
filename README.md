@@ -171,7 +171,7 @@ TESTING cow value: green   ferret value: slithery
   0 |  1.02248 | cow=green, ferret=squirrely
 TESTING cow value: green   ferret value: squirrely
 . ^C
-$ I hit ctrl-c to stop it. I'm now resuming:
+$ I hit ctrl-c to stop it. I am now resuming:
 $ ./simple.sh resume
  #  | PRI      | CONFIG
   1 | -0.04884 | cow=white, ferret=slithery
