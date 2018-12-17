@@ -14,7 +14,7 @@ libwc.a: wc.h wc.cpp
 wpc: wpc.cpp we.h tinyformat.h libcompiler.a libwc.a
 	$(CPP) $(CPPFLAGS) wpc.cpp wc.cpp -o wpc libcompiler.a libwc.a
 
-wpx: wpx.cpp tinyformat.h libcompiler.a libwc.a
+wpx: wpx.cpp tinyformat.h sb.h libcompiler.a libwc.a
 	$(CPP) $(CPPFLAGS) wpx.cpp -o wpx libcompiler.a libwc.a
 
 install: wpc wpx

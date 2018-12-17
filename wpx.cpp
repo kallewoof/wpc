@@ -1,5 +1,18 @@
 #include <wc.h>
 #include <cliargs.h>
+#include <sb.h>
+
+inline std::string c(const std::string& v, size_t w) {
+    char buf[256];
+    size_t vlen = v.length();
+    if (vlen >= w) return v;
+    size_t l = (w - vlen) / 2;
+    size_t r = w - l - vlen;
+    std::string fmt = "%" + (l ? std::to_string(l + vlen) : "") + "s" + (r ? "%" + std::to_string(r) + "s" : "");
+    sprintf(buf, fmt.c_str(), v.c_str(), "");
+    return buf;
+    return r ? strprintf(fmt, v, "") : strprintf(fmt, v);
+}
 
 int main(int argc, char* const* argv)
 {
@@ -29,50 +42,38 @@ int main(int argc, char* const* argv)
         size_t idx = wc.configurations->size();
         for (auto& c : *wc.configurations) { idx--; printf("%3zu | %8.5f | %s\n", idx, c->pri, c->to_string().c_str()); }
     } else if (ca.m.count('s')) {
-        char fmtbuf[1024];
-        char resbuf[1024];
-        char occbuf[1024];
-        char incbuf[1024];
-        char* fbp = fmtbuf;
-        char* rbp = resbuf;
-        char* obp = occbuf;
-        char* ibp = incbuf;
-        (*fbp++) = ' ';
-        (*rbp++) = ' ';
-        (*obp++) = ' ';
-        (*ibp++) = ' ';
+        sb fmt, res, occ, inc, pri;
+        fmt += ' '; res += ' '; occ += ' '; inc += ' '; pri += ' ';
         printf(" ");
         for (auto& o : wc.options) {
             size_t minwidth = 1 + o->name.length();
             size_t optlen = 0;
             for (auto& s : o->settings) {
                 size_t slen = std::max<size_t>({3, s->value.length(), std::to_string(s->inclusions).length(), std::to_string(s->occurrences).length()});
-                std::string fmt = "%-" + std::to_string(slen) + "s ";
-                fbp += sprintf(fbp, fmt.c_str(), s->value.c_str());
-                fmt = "%-" + std::to_string(slen) + "zu ";
+                std::string f = "%-" + std::to_string(slen) + "s ";
+                fmt += strprintf(f, s->value);
+                f = "%-" + std::to_string(slen) + "zu ";
                 optlen += slen + 1;
                 size_t r = (100 * s->inclusions) / s->occurrences;
-                rbp += sprintf(rbp, fmt.c_str(), r);
-                obp += sprintf(obp, fmt.c_str(), s->occurrences);
-                ibp += sprintf(ibp, fmt.c_str(), s->inclusions);
+                res += strprintf(f, r);
+                occ += strprintf(f, s->occurrences);
+                inc += strprintf(f, s->inclusions);
+                f = "%-" + std::to_string(slen) + "d ";
+                pri += strprintf(f, s->priority);
             }
             if (minwidth > optlen) {
                 std::string f = "%" + std::to_string(minwidth - optlen) + "s";
-                fbp += sprintf(fbp, f.c_str(), "");
-                rbp += sprintf(rbp, f.c_str(), "");
-                obp += sprintf(obp, f.c_str(), "");
-                ibp += sprintf(ibp, f.c_str(), "");
+                fmt += strprintf(f, "");
+                res += strprintf(f, "");
+                occ += strprintf(f, "");
+                inc += strprintf(f, "");
+                pri += strprintf(f, "");
             }
             minwidth = std::max(minwidth, optlen);
-            std::string hdr = "%-" + std::to_string(minwidth) + "s ";
-            printf(hdr.c_str(), o->name.c_str());
-            (*fbp++) = ' ';
-            (*rbp++) = ' ';
-            (*obp++) = ' ';
-            (*ibp++) = ' ';
+            fputs((c(o->name, minwidth) + " ").c_str(), stdout);
+            fmt += ' '; res += ' '; occ += ' '; inc += ' '; pri += ' ';
         }
-        *rbp = *fbp = *obp = *ibp = 0;
-        printf("\n%s\n%s (%%)\n%s (count)\n%s (total)\n", fmtbuf, resbuf, incbuf, occbuf);
+        printf("\n%s\n%s (%%)\n%s (priority)\n%s (count)\n%s (total)\n", fmt.c_str(), res.c_str(), pri.c_str(), inc.c_str(), occ.c_str());
     } else {
         if (!wc.emit_and_penalize(stdout)) {
             exit(1);
