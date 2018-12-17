@@ -63,15 +63,15 @@ The priority of a value determines the order in which the value is enabled. You 
 $ wpc cow.wcd
 2
 $ wpx -l cow.scd
- #  | PRI      | CONFIG
-  1 | -0.01590 | cow=white
-  0 |  1.02936 | cow=green
+ #  |    PRI   |    PEN   | CONFIG
+  1 | -0.01590 |  0.00000 | cow=white
+  0 |  1.02936 |  0.00000 | cow=green
 $ wpc cow2.wpc
 2
 $ wpx -l cow2.scd
- #  | PRI      | CONFIG
-  1 |  0.02938 | cow2=white
-  0 |  1.02610 | cow2=green
+ #  |    PRI   |    PEN   | CONFIG
+  1 |  0.02938 |  0.00000 | cow2=white
+  0 |  1.02610 |  0.00000 | cow2=green
 $ 
 ```
 (the outputs differ, not because `cow.wcd` is different from `cow2.wcd`, but because the starting priorities are blurred; try compiling and listing multiple times and you'll note that each time is slightly different)
@@ -110,11 +110,11 @@ Compile:
 $ wpc animals.wpc
 4
 $ wpx -l animals.scd
- #  | PRI      | CONFIG
-  3 | -0.04286 | cow=white, ferret=slithery
-  2 | -0.03333 | cow=white, ferret=squirrely
-  1 |  0.99142 | cow=green, ferret=slithery
-  0 |  1.04114 | cow=green, ferret=squirrely
+ #  |    PRI   |    PEN   | CONFIG
+  3 | -0.01729 |  0.00000 | cow=white, ferret=slithery
+  2 | -0.00625 |  0.00000 | cow=white, ferret=squirrely
+  1 |  0.97984 |  0.00000 | cow=green, ferret=slithery
+  0 |  1.04784 |  0.00000 | cow=green, ferret=squirrely
 $
 ```
 We now have four combinations: green cow and squirrely ferret, green cow and slithery ferret, white cow and slithery ferret, and white cow and squirrely ferret.
@@ -125,28 +125,29 @@ $ wpx animals.scd
 cow=green
 ferret=squirrely
 $ wpx -l animals.scd
- #  | PRI      | CONFIG
-  2 | -0.05333 | cow=white, ferret=squirrely
-  1 | -0.04286 | cow=white, ferret=slithery
-  0 |  0.97142 | cow=green, ferret=slithery
+ #  |    PRI   |    PEN   | CONFIG
+  2 | -0.02625 |  0.02000 | cow=white, ferret=squirrely
+  1 | -0.01729 |  0.00000 | cow=white, ferret=slithery
+  0 |  0.95984 |  0.02000 | cow=green, ferret=slithery
 $
 ```
-You may notice that the order has changed; WPC has now down-prioritized the white cow/squirrely ferret case, because we've already tested squirrely ferrets once. If we emit another instance:
+You may notice that the order has changed; WPC has now penalized the white cow/squirrely ferret case, because we've already tested squirrely ferrets once (see the "PEN" column above). If we emit another instance:
 ```Bash
 $ wpx animals.scd
 cow=green
 ferret=slithery
 $ wpx -l animals.scd
- #  | PRI      | CONFIG
-  1 | -0.06286 | cow=white, ferret=slithery
-  0 | -0.05333 | cow=white, ferret=squirrely
+ #  |    PRI   |    PEN   | CONFIG
+  1 | -0.03729 |  0.02000 | cow=white, ferret=slithery
+  0 | -0.02625 |  0.00000 | cow=white, ferret=squirrely
 ```
-the order has flipped back again, because this time, we penalized cow=green and ferret=slithery. This may seem pointless, but with more complex cases (and more options), this works out in favor of testing combinations efficiently. The `-s` flag can be used to show statistics on how tested each individual setting has been so far:
+the order has flipped back again, because this time, we penalized ferret=slithery. This may seem pointless, but with more complex cases (and more options), this works out in favor of testing combinations efficiently. The `-s` flag can be used to show statistics on how tested each individual setting has been so far:
 ```Bash
 $ wpx -s animals.scd
  cow          ferret
  green white  squirrely slithery
  100   0      50        50         (%)
+ 0     -1     0         0          (priority)
  2     0      1         1          (count)
  2     2      2         2          (total)
 $
@@ -156,6 +157,7 @@ We note that green cows have 100% tested, while squirrely and slithery ferrets l
  cow          ferret
  green white  squirrely slithery
  50    50     50        50         (%)
+ 0     0      0         0          (priority)
  1     1      1         1          (count)
  2     2      2         2          (total)
 ```
@@ -195,31 +197,31 @@ Run example:
 $ ./simple.sh
 Generating schedule
 4
- #  | PRI      | CONFIG
-  3 |  0.03703 | cow=white, ferret=slithery
-  2 |  0.04940 | cow=white, ferret=squirrely
-  1 |  1.01284 | cow=green, ferret=slithery
-  0 |  1.04157 | cow=green, ferret=squirrely
+ #  |    PRI   |    PEN   | CONFIG
+  3 | -0.04952 |  0.00000 | cow=white, ferret=squirrely
+  2 | -0.03901 |  0.00000 | cow=white, ferret=slithery
+  1 |  0.97098 |  0.00000 | cow=green, ferret=slithery
+  0 |  1.04803 |  0.00000 | cow=green, ferret=squirrely
 TESTING cow value: green   ferret value: squirrely
 . . .  OK
- #  | PRI      | CONFIG
-  2 |  0.02940 | cow=white, ferret=squirrely
-  1 |  0.03703 | cow=white, ferret=slithery
-  0 |  0.99284 | cow=green, ferret=slithery
+ #  |    PRI   |    PEN   | CONFIG
+  2 | -0.06952 |  0.02000 | cow=white, ferret=squirrely
+  1 | -0.03901 |  0.00000 | cow=white, ferret=slithery
+  0 |  0.95098 |  0.02000 | cow=green, ferret=slithery
 TESTING cow value: green   ferret value: slithery
-. . ^C
+. ^C
 $ # I hit ctrl-c to stop it. I am now resuming:
 $ ./simple.sh resume
- #  | PRI      | CONFIG
-  1 |  0.01703 | cow=white, ferret=slithery
-  0 |  0.02940 | cow=white, ferret=squirrely
-TESTING cow value: white   ferret value: squirrely
-. . .  OK
- #  | PRI      | CONFIG
-  0 | -0.00397 | cow=white, ferret=slithery
+ #  |    PRI   |    PEN   | CONFIG
+  1 | -0.06952 |  0.00000 | cow=white, ferret=squirrely
+  0 | -0.05901 |  0.02000 | cow=white, ferret=slithery
 TESTING cow value: white   ferret value: slithery
 . . .  OK
- #  | PRI      | CONFIG
+ #  |    PRI   |    PEN   | CONFIG
+  0 | -0.09052 |  0.02100 | cow=white, ferret=squirrely
+TESTING cow value: white   ferret value: squirrely
+. . .  OK
+ #  |    PRI   |    PEN   | CONFIG
 Finished all instances
 $ 
 ```
@@ -253,10 +255,10 @@ $ wpc animals.wpc
 we only get 3 alternatives, not 4:
 ```
 $ wpx -l animals.scd
- #  | PRI      | CONFIG
-  2 |  0.01198 | cow=white, ferret=squirrely
-  1 |  0.99974 | cow=green, ferret=slithery
-  0 |  1.03089 | cow=green, ferret=squirrely
+ #  |    PRI   |    PEN   | CONFIG
+  2 |  0.01527 |  0.00000 | cow=white, ferret=squirrely
+  1 |  1.00490 |  0.00000 | cow=green, ferret=slithery
+  0 |  1.04808 |  0.00000 | cow=green, ferret=squirrely
 $ 
 ```
 To take the example above:
@@ -276,10 +278,10 @@ db_location {
 $ wpc websrv.wpc
 3
 $ wpx -l websrv.scd
- #  | PRI      | CONFIG
-  2 |  0.03105 | db=none, db_location=none
-  1 |  0.97296 | db=mysql, db_location=local
-  0 |  1.00419 | db=mysql, db_location=remote
+ #  |    PRI   |    PEN   | CONFIG
+  2 |  0.04812 |  0.00000 | db=none, db_location=none
+  1 |  0.96662 |  0.00000 | db=mysql, db_location=local
+  0 |  1.02313 |  0.00000 | db=mysql, db_location=remote
 $ 
 ```
 
@@ -295,11 +297,11 @@ ferret {
   normal value slithery(require cow==green);
 }
 ```
-will result in this:
+will result in something like this:
 ```Bash
- #  | PRI      | CONFIG
-  1 |      nan | cow=green, ferret=squirrely
-  0 |      nan | cow=green, ferret=slithery
+ #  |    PRI   |    PEN   | CONFIG
+  1 | -0.00603 |  0.00000 | cow=green, ferret=slithery
+  0 |  0.04816 |  0.00000 | cow=green, ferret=squirrely
 ```
 I.e. no white cow tests will ever be scheduled!
 
