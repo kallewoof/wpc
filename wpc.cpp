@@ -21,7 +21,8 @@ int main(int argc, const char* argv[])
         exit(1);
     }
     const char* spec = argv[1];
-    const char* output = argc == 3 ? argv[2] : derive_output(spec).c_str();
+    std::string output_string = argc == 3 ? argv[2] : derive_output(spec);
+    const char* output = output_string.c_str();
     FILE* fp = fopen(spec, "r");
     if (!fp) {
         fprintf(stderr, "File not found or not readable: %s\n", spec);
