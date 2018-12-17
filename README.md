@@ -230,7 +230,14 @@ $
 
 > Slithery ferrets need green cows.
 
-WPC includes a simple condition operator for values.
+WPC includes a simple condition operator for values:
+```
+[priority [...]] value [name]([cond1]=[val1][, [cond2]=[val2][, ...]])
+```
+e.g.
+```
+normal value erratic(color=red, size!=big);
+```
 
 Let's say we have a system which may or may not use a database backend (`db=mysql`, `db=none`).
 We have a series of database related properties, such as `db_location=remote`, `db_location=local`,
