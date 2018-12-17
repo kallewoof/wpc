@@ -131,6 +131,8 @@ st_t* parse_condition(token_t** s) {
     std::string var = r->value;
     r = r->next;
     switch (r->token) {
+    case tok_set:
+        r->token = tok_eq;
     case tok_eq:
     case tok_ne:
         break;
