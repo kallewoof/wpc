@@ -244,7 +244,7 @@ cow {
 }
 ferret {
   normal value squirrely;
-  normal value slithery(cow==green);
+  normal value slithery(cow=green);
 }
 ```
 When we compile this:
@@ -271,7 +271,7 @@ db {
 db_location {
   normal value remote(db!=none);
   normal value local(db!=none);
-  normal value none(db==none);
+  normal value none(db=none);
 }
 ```
 ```Bash
@@ -293,8 +293,8 @@ cow {
   uninteresting value white;
 }
 ferret {
-  normal value squirrely(cow==green);
-  normal value slithery(cow==green);
+  normal value squirrely(cow=green);
+  normal value slithery(cow=green);
 }
 ```
 will result in something like this:
@@ -322,7 +322,7 @@ db_location {
   normal value local(db!=none) {{
     db_host=localhost
   }}
-  normal value none(db==none);
+  normal value none(db=none);
 }
 ```
 ```Bash
@@ -364,7 +364,7 @@ db_location {
   normal value local(db!=none) {{
     db_host=localhost
   }}
-  normal value none(db==none);
+  normal value none(db=none);
 }
 ```
 ```Bash
