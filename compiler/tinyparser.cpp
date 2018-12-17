@@ -51,6 +51,8 @@ st_t* parse_expr(token_t** s) {
     return nullptr;
 }
 
+std::vector<st_c> parse_conditions(token_t** s);
+
 st_t* parse_pre(token_t** s) {
     // '}}' token with content
     if ((*s)->token == tok_rpre) {
@@ -99,35 +101,33 @@ st_t* parse_value(token_t** s) {
     std::string value = r->value;
     std::string desc = "";
     std::string pre = "";
-    st_t* condition = nullptr;
+    std::vector<st_c> conditions;
     r = r->next;
     if (r->token == tok_lparen) {
         // condition
         r = r->next;
-        condition = parse_condition(&r);
-        if (!r || r->token != tok_rparen) { if (condition) delete condition; return nullptr; }
+        conditions = parse_conditions(&r);
+        if (!r || r->token != tok_rparen) return nullptr;
         r = r->next;
     }
     if (r->token == tok_colon) {
         r = r->next;
-        if (!r || !r->next || r->token != tok_string) { if (condition) delete condition; return nullptr; }
+        if (!r || !r->next || r->token != tok_string) return nullptr;
         desc = r->value;
         r = r->next;
     }
     if (r->token == tok_consumable) r = r->next;
     if (r->token == tok_rpre) {
         pre = r->value;
-    } else if (!r || r->token != tok_semicolon) { if (condition) delete condition; return nullptr; }
+    } else if (!r || r->token != tok_semicolon) return nullptr;
     *s = r->next;
-    return new value_t(value, desc, priority, pre, condition);
+    return new value_t(value, desc, priority, pre, conditions);
 }
 
 st_t* parse_condition(token_t** s) {
-    // require var comparator expr
+    // var comparator expr
     token_t* r = *s;
-    if (r->token != tok_symbol || std::string("require") != r->value || !r->next || !r->next->next || !r->next->next->next) return nullptr;
-    r = r->next;
-    if (r->token != tok_symbol) return nullptr;
+    if (r->token != tok_symbol || !r->next || !r->next->next) return nullptr;
     std::string var = r->value;
     r = r->next;
     switch (r->token) {
@@ -143,6 +143,23 @@ st_t* parse_condition(token_t** s) {
     std::string val = r->value;
     *s = r->next;
     return new cond_t(var, val, comparator);
+}
+
+std::vector<st_c> parse_conditions(token_t** s) {
+    // [condition] [,] [condition2...]
+    std::vector<st_c> conds;
+    token_t* r = *s;
+    st_t* cond = parse_condition(&r);
+    if (!cond) return conds;
+    conds.emplace_back(cond);
+    while (r && r->token == tok_comma) {
+        r = r->next;
+        cond = parse_condition(&r);
+        if (!cond) { conds.clear(); return conds; }
+        conds.emplace_back(cond);
+    }
+    *s = r;
+    return conds;
 }
 
 st_t* treeify(token_t** tokens, bool multi) {

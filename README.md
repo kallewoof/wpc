@@ -228,7 +228,7 @@ $
 
 ## Conditions
 
-> Slithery ferrets require green cows.
+> Slithery ferrets need green cows.
 
 WPC includes a simple condition operator for values.
 
@@ -244,7 +244,7 @@ cow {
 }
 ferret {
   normal value squirrely;
-  normal value slithery(require cow==green);
+  normal value slithery(cow==green);
 }
 ```
 When we compile this:
@@ -269,9 +269,9 @@ db {
   normal value mysql;
 }
 db_location {
-  normal value remote(require db!=none);
-  normal value local(require db!=none);
-  normal value none(require db==none);
+  normal value remote(db!=none);
+  normal value local(db!=none);
+  normal value none(db==none);
 }
 ```
 ```Bash
@@ -293,8 +293,8 @@ cow {
   uninteresting value white;
 }
 ferret {
-  normal value squirrely(require cow==green);
-  normal value slithery(require cow==green);
+  normal value squirrely(cow==green);
+  normal value slithery(cow==green);
 }
 ```
 will result in something like this:
@@ -316,13 +316,13 @@ db {
   normal value mysql;
 }
 db_location {
-  normal value remote(require db!=none) {{
+  normal value remote(db!=none) {{
     db_host=remote-server.somewhere
   }}
-  normal value local(require db!=none) {{
+  normal value local(db!=none) {{
     db_host=localhost
   }}
-  normal value none(require db==none);
+  normal value none(db==none);
 }
 ```
 ```Bash
@@ -354,17 +354,17 @@ db {
   normal value mongodb;
 }
 db_location {
-  normal value remote(require db!=none) {{
+  normal value remote(db!=none) {{
     if [ "$db" = "mongodb" ]; then
         db_host=remote-mongo-server.somewhere
     else
         db_host=remote-server.somewhere
     fi
   }}
-  normal value local(require db!=none) {{
+  normal value local(db!=none) {{
     db_host=localhost
   }}
-  normal value none(require db==none);
+  normal value none(db==none);
 }
 ```
 ```Bash

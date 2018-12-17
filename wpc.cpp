@@ -17,7 +17,7 @@ int main(int argc, const char* argv[])
 {
     if (argc < 2 || argc > 3) {
         fprintf(stderr, "Syntax: %s <specification> [<output>]\n", argv[0]);
-        fprintf(stderr, "Output is derived from <specification> if left out.");
+        fprintf(stderr, "Output is derived from <specification> if left out.\n");
         exit(1);
     }
     const char* spec = argv[1];
@@ -28,14 +28,13 @@ int main(int argc, const char* argv[])
         fprintf(stderr, "File not found or not readable: %s\n", spec);
         exit(1);
     }
-    fseek(fp, 0, SEEK_END);
-    long sz = ftell(fp) + 1;
-    char* buf = (char*)malloc(sz);
-    fseek(fp, 0, SEEK_SET);
-    fread(buf, 1, sz, fp);
+    char buf[1024];
+    std::string s;
+    while (fgets(buf, 1024, fp)) {
+        s += buf;
+    }
     fclose(fp);
-    buf[sz] = 0;
-    auto t = tiny::tokenize(buf);
+    auto t = tiny::tokenize(s.c_str());
     we::we we;
     while (t) {
         auto p = tiny::treeify(&t, true);

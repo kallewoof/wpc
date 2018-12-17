@@ -54,7 +54,7 @@ int main(int argc, char* const* argv)
                 fmt += strprintf(f, s->value);
                 f = "%-" + std::to_string(slen) + "zu ";
                 optlen += slen + 1;
-                size_t r = (100 * s->inclusions) / s->occurrences;
+                size_t r = s->occurrences ? (100 * s->inclusions) / s->occurrences : 100;
                 res += strprintf(f, r);
                 occ += strprintf(f, s->occurrences);
                 inc += strprintf(f, s->inclusions);

@@ -156,7 +156,7 @@ struct value_t: public st_t {
     std::string expr;
     std::string desc;
     std::string pre;
-    st_t* condition;
+    std::vector<st_c> conditions;
     int priority; // -1=heavy, -1=uninteresting, 0=normal, 1=prioritized
     static bool prioritize(const std::string& pexpr, int& p) {
         if (pexpr == "heavy") p--;
@@ -164,28 +164,38 @@ struct value_t: public st_t {
         else if (pexpr == "light") p++;
         else if (pexpr == "interesting") p++;
         else if (pexpr == "prioritized") p++;
+        else if (pexpr == "skipped" || pexpr == "skip") p -= 99;
         else return pexpr == "normal";
         return true;
     }
-    value_t(const std::string& expr_in, const std::string& desc_in, int priority_in, const std::string& pre_in, st_t* condition_in = nullptr)
+    value_t(const std::string& expr_in, const std::string& desc_in, int priority_in, const std::string& pre_in, std::vector<st_c> conditions_in)
     : expr(expr_in)
     , desc(desc_in)
     , priority(priority_in)
     , pre(pre_in)
-    , condition(condition_in) {}
-    ~value_t() {
-        if (condition) delete condition;
+    , conditions(conditions_in) {}
+    std::string cond_str(bool terse) const {
+        std::string s = "";
+        for (auto& c : conditions) s += (s == "" ? "" : ", ") + c.r->to_string(terse);
+        return s;
+    }
+    std::vector<st_c> cond_clone() {
+        std::vector<st_c> cv;
+        for (auto& c : conditions) cv.push_back(c.clone());
+        return cv;
     }
     virtual std::string to_string(bool terse) override {
-        return strprintf("(%s[req: %s]; pri=%d; \"%s\" {{%s}})", expr, condition ? condition->to_string(terse) : "none", priority, desc, pre);
+        return strprintf("(%s[req: %s]; pri=%d; \"%s\" {{%s}})", expr, conditions.size() ? cond_str(terse) : "none", priority, desc, pre);
     }
     virtual void exec(st_callback_table* ct) override {
-        if (condition) condition->exec(ct);
+        for (auto& c : conditions) c.r->exec(ct);
         ct->branch(desc, expr, priority, pre);
-        if (condition) condition->cexe(ct);
+        for (size_t i = conditions.size() - 1; i < conditions.size(); --i) {
+            conditions[i].r->cexe(ct);
+        }
     }
     virtual st_t* clone() override {
-        return new value_t(expr, desc, priority, pre, condition ? condition->clone() : nullptr);
+        return new value_t(expr, desc, priority, pre, cond_clone());
     }
 };
 

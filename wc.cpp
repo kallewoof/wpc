@@ -10,7 +10,8 @@ req::req(const std::string& var_in, const std::string& val_in, tiny::token_type 
     , val(val_in)
     , cond(cond_in) {}
 bool req::met(const std::map<std::string,std::string>& state, const std::string& x_var, const std::string& x_val) const {
-    bool equals = (state.count(var) && x_var != var && state.at(var) == val) || (x_var == var && x_val == val);
+    if (x_var != var && !state.count(var)) return true; // unknown, i.e. an as yet traversed option introduces this constriction
+    bool equals = x_var == var ? x_val == val : (!state.count(var) || state.at(var) == val);
     return cond == tiny::tok_eq ? equals : !equals;
 }
 void req::convert_we(std::vector<req*>& v, const std::vector<we::restricter*>& rest) {

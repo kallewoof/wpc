@@ -21,7 +21,6 @@ st_t* parse_option(token_t** s);
 
 // options
 st_t* parse_value(token_t** s);
-st_t* parse_condition(token_t** s);
 
 } // namespace tiny
 
