@@ -24,10 +24,39 @@ bool req::met(const std::map<std::string,std::string>& state, const std::vector<
     return true;
 }
 
+std::string trim_emit(const std::string& emit) {
+    if (emit.length() == 0) return emit;
+    // remove any starting/ending blank lines (lines with only ' ', \t on them)
+    size_t len = emit.length();
+    char* buf = (char*)malloc(1 + len);
+    char* bp = buf;
+    size_t j, i = 0;
+    while (emit[i]) {
+        for (j = i; emit[j] == ' ' || emit[j] == '\t'; ++j);
+        if (emit[j] == '\n' || emit[j] == '\r') i = j + 1; else break;
+    }
+    // count leading spaces
+    size_t ls = 0;
+    for (; emit[i] == ' ' || emit[i] == '\t'; ++i) ++ls;
+    // start transfering into buf from emit, until we hit a newline
+    bool last_blank = false;
+    while (emit[i]) {
+        (*bp++) = emit[i];
+        if (emit[i] == '\n') {
+            // trim first ls spaces (if any)
+            ++i;
+            for (j = 0; j < ls && (emit[i] == ' ' || emit[i] == '\t'); ++j) ++i;
+        } else ++i;
+    }
+    while (bp - buf > 1 && bp[-1] == '\n') bp--;
+    *bp = 0;
+    return buf;
+}
+
 setting::setting() {}
 setting::setting(const std::string& value_in, const std::string& emits_in, const std::vector<req*>& requirements_in, int priority_in)
     : value(value_in)
-    , emits(emits_in)
+    , emits(trim_emit(emits_in))
     , requirements(requirements_in)
     , priority(priority_in) {}
 
@@ -36,12 +65,12 @@ option::option() {
 }
 option::option(const std::string& name_in, const std::string& emits_in, const std::vector<setting*> settings_in)
     : name(name_in)
-    , emits(emits_in)
+    , emits(trim_emit(emits_in))
     , settings(settings_in) {
     id = id_counter++;
 }
 void option::emit(size_t sidx, FILE* fp) const {
-    fprintf(fp, "%s%s=%s%s\n", emits.c_str(), name.c_str(), settings.at(sidx)->value.c_str(), settings.at(sidx)->emits.c_str());
+    fprintf(fp, "%s%s=%s%s%s\n", emits.c_str(), name.c_str(), settings.at(sidx)->value.c_str(), settings.at(sidx)->emits.length() ? "\n" : "", settings.at(sidx)->emits.c_str());
 }
 
 configuration::configuration() {}
@@ -222,7 +251,7 @@ void wc::normalize() {
 }
 
 void wc::emit(const std::string& output) {
-    emits += output;
+    emits += trim_emit(output);
 }
 
 void wc::branch(const std::string& desc, const std::string& var, const std::string& val, const std::string& emits, int priority, std::vector<we::restricter*> conditions) {

@@ -338,13 +338,11 @@ $ wpc websrv.wpc
 $ wpx websrv.scd
 db=mysql
 db_location=local
-    db_host=localhost
-
+db_host=localhost
 $ wpx websrv.scd
 db=mysql
 db_location=remote
-    db_host=remote-server.somewhere
-
+db_host=remote-server.somewhere
 $ wpx websrv.scd
 db=none
 db_location=none
@@ -378,31 +376,27 @@ db_location {
 $ wpx websrv.scd
 db=mongodb
 db_location=local
-    db_host=localhost
-
+db_host=localhost
 $ wpx websrv.scd
 db=mongodb
 db_location=remote
-    if [ "$db" = "mongodb" ]; then
-        db_host=remote-mongo-server.somewhere
-    else
-        db_host=remote-server.somewhere
-    fi
-
+if [ "$db" = "mongodb" ]; then
+    db_host=remote-mongo-server.somewhere
+else
+    db_host=remote-server.somewhere
+fi
 $ wpx websrv.scd
 db=mysql
 db_location=remote
-    if [ "$db" = "mongodb" ]; then
-        db_host=remote-mongo-server.somewhere
-    else
-        db_host=remote-server.somewhere
-    fi
-
+if [ "$db" = "mongodb" ]; then
+    db_host=remote-mongo-server.somewhere
+else
+    db_host=remote-server.somewhere
+fi
 $ wpx websrv.scd
 db=mysql
 db_location=local
-    db_host=localhost
-
+db_host=localhost
 $ wpx websrv.scd
 db=none
 db_location=none
