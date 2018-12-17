@@ -163,7 +163,9 @@ struct we: public tiny::st_callback_table {
 
     virtual void branch(const std::string& desc, const std::string& expr, int priority, const std::string& pre = "") override {
         if (option_stack.size() == 0) throw std::runtime_error("invalid branch call (option stack is empty)");
-        nodes.push_back(new brancher(desc, option_stack.back(), expr, pre, priority, cond_stack));
+        if (priority >= -10) {
+            nodes.push_back(new brancher(desc, option_stack.back(), expr, pre, priority, cond_stack));
+        }
     }
 
     void print() const {

@@ -52,11 +52,11 @@ $
 ```
 I.e. the exact same output as above. While there is some randomness (called "blurring" here), parameters are in fact ordered in a fixed manner.
 
-There are currently 6 prioritizers for values: heavy (-1), uninteresting (-1), normal (0), light (+1), interesting (+1), prioritized (+1). These can be combined any number of times, e.g.
+There are currently 8 prioritizers for values: skip/skipped (-99), heavy (-1), uninteresting (-1), normal (0), light (+1), interesting (+1), prioritized (+1). These can be combined any number of times, e.g.
 ```
 heavy uninteresting prioritized value x;
 ```
-(would produce a value `x` for the given option, whose priority is `-1-1+1=-1`).
+(would produce a value `x` for the given option, whose priority is `-1-1+1=-1`). The skip/skipped prioritizers will result in that value being skipped and is equivalent to commenting it out completely. (Any value whose priority < -10 is skipped.)
 
 The priority of a value determines the order in which the value is enabled. You can list the contents of an instance, and see priorities for each configuration, by prepending the `wpx` call with `-l` or `--list`.
 ```Bash
