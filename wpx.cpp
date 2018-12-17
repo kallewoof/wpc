@@ -38,9 +38,9 @@ int main(int argc, char* const* argv)
     wc::wc wc(fp);
     fclose(fp);
     if (ca.m.count('l')) {
-        printf(" #  | PRI      | CONFIG\n");
+        printf(" #  |    PRI   |    PEN   | CONFIG\n");
         size_t idx = wc.configurations->size();
-        for (auto& c : *wc.configurations) { idx--; printf("%3zu | %8.5f | %s\n", idx, c->pri, c->to_string().c_str()); }
+        for (auto& c : *wc.configurations) { idx--; printf("%3zu | %8.5f | %8.5f | %s\n", idx, c->pri, c->last_penalty, c->to_string().c_str()); }
     } else if (ca.m.count('s')) {
         sb fmt, res, occ, inc, pri;
         fmt += ' '; res += ' '; occ += ' '; inc += ' '; pri += ' ';

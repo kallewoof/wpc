@@ -133,6 +133,7 @@ struct configuration {
     std::vector<req*> requirements;
     size_t old_idx;
     float pri = 0;
+    float last_penalty = 0;
     inline setting* si(size_t i) const { return options[i]->settings[setting_index[i]]; }
     inline setting* si(size_t i) { return options[i]->settings[setting_index[i]]; }
     configuration();
@@ -149,12 +150,14 @@ struct configuration {
 inline void serialize(FILE* fp, const configuration& c) {
     serialize(fp, c.setting_index);
     serialize(fp, c.pri);
+    serialize(fp, c.last_penalty);
 }
 
 inline void deserialize(FILE* fp, configuration& c, const std::vector<option*>& options) {
     c.options = options;
     deserialize(fp, c.setting_index);
     deserialize(fp, c.pri);
+    deserialize(fp, c.last_penalty);
 }
 
 struct wc: public we::configurator {

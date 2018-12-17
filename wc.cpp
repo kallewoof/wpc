@@ -90,6 +90,7 @@ std::string configuration::to_string() const {
 }
 void configuration::penalize(const configuration& basis) {
     // for any matching setting indices, we penalize ourselves
+    last_penalty = 0;
     for (size_t i = 0; i < options.size(); ++i) {
         if (setting_index[i] == basis.setting_index[i]) {
             auto s = si(i);
@@ -99,6 +100,7 @@ void configuration::penalize(const configuration& basis) {
             penalty += 0.02 * s->inclusions / s->occurrences;
             // for pri>0, reduce penalty by (5*pri)%; for pri<0, increase it
             penalty *= 1.0 - 0.05 * s->priority;
+            last_penalty += penalty;
             pri -= penalty;
         }
     }
