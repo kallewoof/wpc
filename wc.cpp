@@ -49,6 +49,7 @@ std::string trim_emit(const std::string& emit) {
         } else ++i;
     }
     while (bp - buf > 1 && bp[-1] == '\n') bp--;
+    *(bp++) = '\n';
     *bp = 0;
     return buf;
 }
@@ -70,7 +71,7 @@ option::option(const std::string& name_in, const std::string& emits_in, const st
     id = id_counter++;
 }
 void option::emit(size_t sidx, FILE* fp) const {
-    fprintf(fp, "%s%s=%s%s%s\n", emits.c_str(), name.c_str(), settings.at(sidx)->value.c_str(), settings.at(sidx)->emits.length() ? "\n" : "", settings.at(sidx)->emits.c_str());
+    fprintf(fp, "%s%s=%s\n%s", emits.c_str(), name.c_str(), settings.at(sidx)->value.c_str(), settings.at(sidx)->emits.c_str());
 }
 
 configuration::configuration() {}
